@@ -35,7 +35,7 @@ log = logging.getLogger("shyra.api")
 
 # ── App
 app = Flask(__name__)
-CORS(app, origins=["https://shyra.pro", "https://www.shyra.pro", "http://localhost:*", "https://*.vercel.app"])
+CORS(app, origins=["https://shyra.pro", "https://www.shyra.pro", "http://localhost:*", "https://*.vercel.app", "https://shyra-website-production.up.railway.app", "https://*.up.railway.app"])
 
 # Register admin blueprint
 from api.admin import admin_bp
