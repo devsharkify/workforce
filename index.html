@@ -2814,7 +2814,7 @@ async function cbotClaudeReply(userMsg) {
 
   try {
     // Try proxy first
-    const res = await fetch('https://api.shyra.pro/chat', {
+    const res = await fetch('https://workforce-production-e288.up.railway.app/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: JSON.stringify(messages), system: CBOT_SYSTEM, conversation: true, model: "haiku" }),
@@ -2869,7 +2869,7 @@ async function cbotShowDiagnosis(phone) {
   let rec = { agent: "AI Automation Suite", why: "Automates your most time-consuming daily operations end to end.", roi: "₹10,000–18,000/month", payback: "42", hot_lead: true };
 
   try {
-    const res = await fetch('https://api.shyra.pro/chat', {
+    const res = await fetch('https://workforce-production-e288.up.railway.app/chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: summaryPrompt, conversation_history: cbotHistory }),
       signal: AbortSignal.timeout(5000)
@@ -2940,7 +2940,7 @@ async function cbotShowDiagnosis(phone) {
   msgs.scrollTop = msgs.scrollHeight;
 
   // Submit lead to backend
-  fetch('https://api.shyra.pro/api/diagnosis', {
+  fetch('https://workforce-production-e288.up.railway.app/api/diagnosis', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ phone, recommendation: rec, conversation: cbotHistory, submittedAt: new Date().toISOString() }),
     signal: AbortSignal.timeout(4000)
@@ -2979,7 +2979,7 @@ function generateSlots() {
 }
 
 function makeMeetLink(isoDate, clientPhone) {
-  // Real implementation: call api.shyra.pro/create-meet which uses Google Calendar API
+  // Real implementation: call workforce-production-e288.up.railway.app/create-meet which uses Google Calendar API
   // For now: Google Meet link via Calendar event URL
   const dt = new Date(isoDate);
   const dtEnd = new Date(dt.getTime() + 30 * 60000);
@@ -3010,7 +3010,7 @@ function selectSlot(btn, isoDate, label, phone) {
   document.getElementById('slot-grid').style.display = 'none';
 
   // Notify backend to send WhatsApp confirmations to both client + founder
-  fetch('https://api.shyra.pro/api/book-call', {
+  fetch('https://workforce-production-e288.up.railway.app/api/book-call', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ phone, slot: label, iso: isoDate, meetUrl, submittedAt: new Date().toISOString() }),
     signal: AbortSignal.timeout(4000)
@@ -3413,7 +3413,7 @@ function rescheduleSlot(btn, isoDate, label, phone) {
   document.getElementById('reschedule-panel').style.display = 'none';
   document.getElementById('booking-confirmed').style.display = 'block';
 
-  fetch('https://api.shyra.pro/api/book-call', {
+  fetch('https://workforce-production-e288.up.railway.app/api/book-call', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ phone, slot: label, iso: isoDate, meetUrl, rescheduled: true, submittedAt: new Date().toISOString() }),
     signal: AbortSignal.timeout(4000)
