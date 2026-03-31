@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Shyra Admin — Configuration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#090909;--surface:#111;--surface2:#161616;--border:#1e1e1e;--border2:#2a2a2a;
+  --text:#e8e6e0;--muted:#5a5a5a;--muted2:#3a3a3a;
+  --orange:#f97316;--purple:#a855f7;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;
+  --mono:'JetBrains Mono',monospace;--sans:'DM Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* Topbar */
+.topbar{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(9,9,9,.95);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);display:flex;align-items:center;padding:0 24px;z-index:100;gap:16px}
+.logo{font-family:var(--mono);font-size:13px;letter-spacing:.2em;color:var(--orange)}
+.logo-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--orange);margin-right:8px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.topbar-title{font-size:13px;color:var(--muted);margin-left:4px}
+.topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn{padding:8px 16px;border-radius:8px;font-size:12px;font-family:var(--sans);font-weight:400;cursor:pointer;border:none;transition:all .2s;letter-spacing:.01em}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border2)}
+.btn-ghost:hover{color:var(--text);border-color:var(--muted)}
+.btn-primary{background:linear-gradient(135deg,var(--orange),var(--purple));color:#fff}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.status-bar{padding:4px 12px;border-radius:6px;font-family:var(--mono);font-size:11px;letter-spacing:.03em}
+.status-ok{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.status-err{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.status-idle{background:rgba(90,90,90,.15);color:var(--muted);border:1px solid var(--muted2)}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh;padding-top:56px}
+
+/* Sidebar */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+.sidebar-section{padding:6px 16px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:16px;margin-bottom:4px}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:var(--muted);cursor:pointer;border-left:2px solid transparent;transition:all .15s;text-decoration:none}
+.sidebar-link:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.sidebar-link.active{color:var(--text);border-left-color:var(--orange);background:rgba(249,115,22,.05)}
+.sidebar-dot{width:6px;height:6px;border-radius:50%;background:var(--muted2);flex-shrink:0}
+.sidebar-link.active .sidebar-dot,.sidebar-link.ok .sidebar-dot{background:var(--green)}
+.sidebar-link.err .sidebar-dot{background:var(--red)}
+.sidebar-link.partial .sidebar-dot{background:var(--orange)}
+.badge{margin-left:auto;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:3px;background:rgba(249,115,22,.15);color:var(--orange)}
+
+/* Main */
+.main{padding:32px 40px;max-width:900px}
+.section-title{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.group{margin-bottom:8px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.group-header{padding:16px 20px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.group-name{font-size:13px;font-weight:500;color:var(--text)}
+.group-count{font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:auto}
+.group-arrow{color:var(--muted);transition:transform .2s;font-size:10px}
+.group.open .group-arrow{transform:rotate(180deg)}
+.group-body{display:none;border-top:1px solid var(--border)}
+.group.open .group-body{display:block}
+
+/* Field */
+.field{display:grid;grid-template-columns:200px 1fr auto;gap:0;border-bottom:1px solid var(--border);align-items:stretch}
+.field:last-child{border-bottom:none}
+.field-meta{padding:14px 20px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.field-label{font-size:12px;font-weight:500;color:var(--text)}
+.field-required{font-family:var(--mono);font-size:9px;color:var(--orange);letter-spacing:.05em}
+.field-optional{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.05em}
+.field-hint{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5}
+.field-input{padding:14px 16px;display:flex;align-items:flex-start;gap:8px;flex:1}
+input.key-input,textarea.key-input{flex:1;background:transparent;border:none;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;resize:vertical;line-height:1.6;min-height:20px}
+textarea.key-input{min-height:72px;margin-top:2px}
+input.key-input::placeholder,textarea.key-input::placeholder{color:var(--muted2)}
+.field-actions{padding:12px 16px;display:flex;align-items:center;gap:6px;border-left:1px solid var(--border)}
+.test-btn{background:transparent;border:1px solid var(--border2);color:var(--muted);padding:5px 10px;border-radius:6px;font-size:11px;font-family:var(--mono);cursor:pointer;transition:all .15s;white-space:nowrap}
+.test-btn:hover{border-color:var(--blue);color:var(--blue)}
+.test-indicator{width:7px;height:7px;border-radius:50%;background:var(--muted2);flex-shrink:0}
+.test-indicator.ok{background:var(--green)}
+.test-indicator.err{background:var(--red)}
+.test-indicator.loading{background:var(--orange);animation:pulse .8s infinite}
+
+/* Health cards */
+.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
+.health-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+.health-service{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:.05em}
+.health-status{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px}
+.health-dot{width:7px;height:7px;border-radius:50%}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 20px;font-size:13px;color:var(--text);box-shadow:0 8px 40px rgba(0,0,0,.6);transform:translateY(20px);opacity:0;transition:all .3s cubic-bezier(.22,1,.36,1);z-index:500;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{border-left:3px solid var(--green)}
+.toast.err{border-left:3px solid var(--red)}
+
+/* Env download */
+.env-preview{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px 20px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8;max-height:200px;overflow-y:auto;margin-top:16px}
+.env-key{color:var(--blue)}
+.env-val{color:var(--green)}
+
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .main{padding:20px}
+  .field{grid-template-columns:1fr}
+  .field-meta,.field-input,.field-actions{border-right:none;border-bottom:1px solid var(--border)}
+  .health-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo"><span class="logo-dot"></span>SHYRA</span>
+  <span class="topbar-title">/ admin / configuration</span>
+  <div class="topbar-actions">
+    <div class="status-bar status-idle" id="save-status">unsaved changes</div>
+    <button class="btn btn-ghost" onclick="downloadEnv()">Download .env</button>
+    <button class="btn btn-primary" onclick="saveAll()">Save all keys →</button>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">Services</div>
+    <a class="sidebar-link active" data-group="ai" onclick="scrollTo('ai')">
+      <div class="sidebar-dot"></div> Anthropic AI
+    </a>
+    <a class="sidebar-link" data-group="whatsapp" onclick="scrollTo('whatsapp')">
+      <div class="sidebar-dot"></div> WhatsApp
+    </a>
+    <a class="sidebar-link" data-group="team" onclick="scrollTo('team')">
+      <div class="sidebar-dot"></div> Team Numbers
+    </a>
+    <a class="sidebar-link" data-group="email" onclick="scrollTo('email')">
+      <div class="sidebar-dot"></div> Email
+    </a>
+    <a class="sidebar-link" data-group="google" onclick="scrollTo('google')">
+      <div class="sidebar-dot"></div> Google
+      <span class="badge">4 keys</span>
+    </a>
+    <a class="sidebar-link" data-group="billing" onclick="scrollTo('billing')">
+      <div class="sidebar-dot"></div> Razorpay
+    </a>
+    <a class="sidebar-link" data-group="social" onclick="scrollTo('social')">
+      <div class="sidebar-dot"></div> Social Media
+    </a>
+    <a class="sidebar-link" data-group="system" onclick="scrollTo('system')">
+      <div class="sidebar-dot"></div> System
+    </a>
+    <div class="sidebar-section">Status</div>
+    <a class="sidebar-link" onclick="checkHealth()">
+      <div class="sidebar-dot"></div> Run health check
+    </a>
+    <a class="sidebar-link" onclick="downloadEnv()">
+      <div class="sidebar-dot"></div> Download .env
+    </a>
+    <a class="sidebar-link" onclick="logout()">
+      <div class="sidebar-dot"></div> Logout
+    </a>
+  </nav>
+
+  <main class="main">
+    <div class="section-title">Service Health</div>
+    <div class="health-grid" id="health-grid">
+      <div class="health-card"><div class="health-service">ANTHROPIC</div><div class="health-status"><div class="health-dot" style="background:var(--muted2)"></div>Not checked</div></div>
+      <div class="health-card"><div class="health-service">WHATSAPP</div><div class="health-status"><div class="health-dot" style="background:var(--muted2)"></div>Not checked</div></div>
+      <div class="health-card"><div class="health-service">SENDGRID</div><div class="health-status"><div class="health-dot" style="background:var(--muted2)"></div>Not checked</div></div>
+      <div class="health-card"><div class="health-service">GOOGLE MAPS</div><div class="health-status"><div class="health-dot" style="background:var(--muted2)"></div>Not checked</div></div>
+      <div class="health-card"><div class="health-service">RAZORPAY</div><div class="health-status"><div class="health-dot" style="background:var(--muted2)"></div>Not checked</div></div>
+      <div class="health-card"><div class="health-service">GOOGLE SHEETS</div><div class="health-status"><div class="health-dot" style="background:var(--muted2)"></div>Not checked</div></div>
+    </div>
+
+    <div class="section-title">API Keys & Configuration</div>
+
+    <div id="key-groups"></div>
+
+    <div style="margin-top:32px">
+      <div class="section-title">Environment Preview</div>
+      <div class="env-preview" id="env-preview">Click "Save all keys" to generate .env preview</div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Key definitions — matches admin_routes.py MANAGED_KEYS
+const KEYS = [
+  {group:"AI",      key:"ANTHROPIC_API_KEY",  label:"Anthropic API Key",        required:true,  placeholder:"sk-ant-...",                      type:"secret",   hint:"Get from console.anthropic.com",         testable:true},
+  {group:"WhatsApp",key:"WA_API_KEY",          label:"360dialog API Key",         required:true,  placeholder:"your_360dialog_key",              type:"secret",   hint:"From 360dialog partner hub",             testable:true},
+  {group:"WhatsApp",key:"WA_API_URL",          label:"360dialog API URL",         required:true,  placeholder:"https://waba.360dialog.io/v1",    type:"text",     hint:"",                                       testable:false},
+  {group:"WhatsApp",key:"WA_MAIN_NUMBER",      label:"Main WhatsApp Number",      required:true,  placeholder:"919XXXXXXXXX",                    type:"text",     hint:"Prospects inbox — include country code", testable:false},
+  {group:"WhatsApp",key:"WA_SUPPORT_NUMBER",   label:"Support WhatsApp Number",   required:false, placeholder:"919XXXXXXXXX",                    type:"text",     hint:"Existing clients inbox",                 testable:false},
+  {group:"WhatsApp",key:"WA_VERIFY_TOKEN",     label:"Webhook Verify Token",      required:true,  placeholder:"shyra_prod_2025",                 type:"text",     hint:"Set the same in 360dialog dashboard",    testable:false},
+  {group:"Team",    key:"FOUNDER_NUMBER",      label:"Founder WhatsApp",          required:true,  placeholder:"919XXXXXXXXX",                    type:"text",     hint:"Rohan's number",                         testable:false},
+  {group:"Team",    key:"SALES_NUMBER",        label:"Sales Team WhatsApp",       required:false, placeholder:"919XXXXXXXXX",                    type:"text",     hint:"Gets lead alerts",                       testable:false},
+  {group:"Team",    key:"BUILD_NUMBER",        label:"Build Team WhatsApp",       required:false, placeholder:"919XXXXXXXXX",                    type:"text",     hint:"Gets onboarding tasks",                  testable:false},
+  {group:"Email",   key:"SENDGRID_KEY",        label:"SendGrid API Key",          required:true,  placeholder:"SG.xxxxx",                        type:"secret",   hint:"sendgrid.com/settings/api_keys",         testable:true},
+  {group:"Google",  key:"MAPS_API_KEY",        label:"Google Maps API Key",       required:true,  placeholder:"AIzaSy...",                        type:"secret",   hint:"Enable Places API + Custom Search",      testable:true},
+  {group:"Google",  key:"GOOGLE_CREDS_JSON",   label:"Google Service Account",    required:true,  placeholder:'{"type":"service_account"...}',   type:"textarea", hint:"Paste full JSON from GCP console",       testable:false},
+  {group:"Google",  key:"LEADS_SHEET_ID",      label:"Leads Sheet ID",            required:true,  placeholder:"1BxiMVs0...",                     type:"text",     hint:"From Google Sheets URL",                 testable:false},
+  {group:"Google",  key:"CLIENTS_SHEET_ID",    label:"Clients Sheet ID",          required:true,  placeholder:"1BxiMVs0...",                     type:"text",     hint:"",                                       testable:false},
+  {group:"Google",  key:"CALLS_SHEET_ID",      label:"Calls Sheet ID",            required:false, placeholder:"1BxiMVs0...",                     type:"text",     hint:"",                                       testable:false},
+  {group:"Billing", key:"RAZORPAY_KEY",        label:"Razorpay Key ID",           required:true,  placeholder:"rzp_live_...",                    type:"secret",   hint:"razorpay.com/app/keys",                  testable:true},
+  {group:"Billing", key:"RAZORPAY_SECRET",     label:"Razorpay Key Secret",       required:true,  placeholder:"your_secret",                     type:"secret",   hint:"",                                       testable:false},
+  {group:"Social",  key:"META_TOKEN",          label:"Meta Access Token",         required:false, placeholder:"",                                type:"secret",   hint:"For Instagram/Facebook posting",         testable:false},
+  {group:"Social",  key:"META_PAGE_ID",        label:"Meta Page ID",              required:false, placeholder:"",                                type:"text",     hint:"",                                       testable:false},
+  {group:"Social",  key:"INSTAGRAM_ID",        label:"Instagram Account ID",      required:false, placeholder:"",                                type:"text",     hint:"",                                       testable:false},
+  {group:"Social",  key:"LINKEDIN_TOKEN",      label:"LinkedIn Access Token",     required:false, placeholder:"",                                type:"secret",   hint:"For LinkedIn posting",                   testable:false},
+  {group:"Social",  key:"LINKEDIN_ORG",        label:"LinkedIn Organisation ID",  required:false, placeholder:"",                                type:"text",     hint:"",                                       testable:false},
+  {group:"System",  key:"SENTRY_DSN",          label:"Sentry DSN",                required:false, placeholder:"https://...@sentry.io/...",       type:"text",     hint:"Error tracking",                         testable:false},
+  {group:"System",  key:"REDIS_URL",           label:"Redis URL",                 required:false, placeholder:"redis://localhost:6379/0",         type:"text",     hint:"For conversation state",                 testable:false},
+  {group:"System",  key:"ADMIN_PASSWORD",      label:"Admin Panel Password",      required:true,  placeholder:"shyra_admin_2025",                type:"secret",   hint:"Change this immediately after setup",    testable:false},
+];
+
+const groupIcons = {AI:"⬡", WhatsApp:"◎", Team:"△", Email:"◇", Google:"○", Billing:"⊕", Social:"◈", System:"⊗"};
+let loadedValues = {};
+let changed = {};
+
+// Build groups
+const groupContainer = document.getElementById('key-groups');
+const groups = [...new Set(KEYS.map(k=>k.group))];
+
+groups.forEach(g=>{
+  const gKeys = KEYS.filter(k=>k.group===g);
+  const id = g.toLowerCase().replace(/\s/g,'-');
+  const div = document.createElement('div');
+  div.className='group open';
+  div.id='group-'+id;
+  div.innerHTML=`
+    <div class="group-header" onclick="toggleGroup(this)">
+      <span style="color:var(--muted);font-size:14px">${groupIcons[g]||'○'}</span>
+      <span class="group-name">${g}</span>
+      <span class="group-count" id="count-${id}">${gKeys.length} keys</span>
+      <span class="group-arrow">▾</span>
+    </div>
+    <div class="group-body" id="body-${id}"></div>
+  `;
+  groupContainer.appendChild(div);
+
+  gKeys.forEach(k=>{
+    const body = div.querySelector('.group-body');
+    const isArea = k.type==='textarea';
+    const field = document.createElement('div');
+    field.className='field';
+    field.id='field-'+k.key;
+    field.innerHTML=`
+      <div class="field-meta">
+        <div class="field-label">${k.label}</div>
+        <div class="${k.required?'field-required':'field-optional'}">${k.required?'REQUIRED':'optional'}</div>
+        ${k.hint?`<div class="field-hint">${k.hint}</div>`:''}
+      </div>
+      <div class="field-input">
+        ${isArea
+          ? `<textarea class="key-input" id="input-${k.key}" placeholder="${k.placeholder}" rows="3" onchange="markChanged('${k.key}',this.value)"></textarea>`
+          : `<input class="key-input" id="input-${k.key}" type="${k.type==='secret'?'password':'text'}" placeholder="${k.placeholder}" onchange="markChanged('${k.key}',this.value)" oninput="markChanged('${k.key}',this.value)">`
+        }
+        ${k.type==='secret'?`<button class="btn-ghost btn btn-sm" onclick="toggleShow('${k.key}')" style="flex-shrink:0">show</button>`:''}
+      </div>
+      <div class="field-actions">
+        <div class="test-indicator" id="ind-${k.key}"></div>
+        ${k.testable?`<button class="test-btn" onclick="testKey('${k.key}')">test</button>`:'<span style="width:40px"></span>'}
+      </div>
+    `;
+    body.appendChild(field);
+  });
+});
+
+// Load current values
+function loadKeys(){
+  fetch('/admin/keys',{headers:{'X-Admin-Token':getCookie('admin_token')}})
+  .then(r=>r.json()).then(data=>{
+    if(data.error){toast('Session expired — please reload','err');return}
+    loadedValues = data.values || {};
+    Object.entries(loadedValues).forEach(([k,v])=>{
+      const el = document.getElementById('input-'+k);
+      if(el && v) el.value=v;
+    });
+    updateEnvPreview();
+    updateStatus();
+  });
+}
+
+function markChanged(key, val){
+  changed[key]=val;
+  document.getElementById('save-status').textContent='unsaved changes';
+  document.getElementById('save-status').className='status-bar status-err';
+  updateEnvPreview();
+}
+
+function toggleGroup(header){
+  const group = header.parentElement;
+  group.classList.toggle('open');
+}
+
+function toggleShow(key){
+  const el = document.getElementById('input-'+key);
+  el.type = el.type==='password'?'text':'password';
+}
+
+function testKey(key){
+  const val = document.getElementById('input-'+key).value;
+  if(!val){toast('Enter a value first','err');return}
+  const ind = document.getElementById('ind-'+key);
+  ind.className='test-indicator loading';
+  fetch('/admin/test',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-Admin-Token':getCookie('admin_token')},
+    body:JSON.stringify({key,value:val})
+  }).then(r=>r.json()).then(d=>{
+    ind.className='test-indicator '+(d.ok?'ok':'err');
+    toast(d.msg, d.ok?'ok':'err');
+  });
+}
+
+function saveAll(){
+  const updates = {};
+  KEYS.forEach(k=>{
+    const el = document.getElementById('input-'+k.key);
+    if(el && el.value.trim()) updates[k.key]=el.value.trim();
+  });
+  fetch('/admin/keys',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-Admin-Token':getCookie('admin_token')},
+    body:JSON.stringify({keys:updates})
+  }).then(r=>r.json()).then(d=>{
+    if(d.success){
+      toast('Keys saved — '+d.saved_to,'ok');
+      changed={};
+      document.getElementById('save-status').textContent='all saved';
+      document.getElementById('save-status').className='status-bar status-ok';
+    } else {
+      toast('Save failed: '+d.reason,'err');
+    }
+  });
+}
+
+function checkHealth(){
+  toast('Running health check...','ok');
+  fetch('/admin/health',{headers:{'X-Admin-Token':getCookie('admin_token')}})
+  .then(r=>r.json()).then(d=>{
+    const grid = document.getElementById('health-grid');
+    const services = ['ANTHROPIC','WHATSAPP','SENDGRID','GOOGLE MAPS','RAZORPAY','GOOGLE SHEETS'];
+    const statuses = d.services||{};
+    grid.innerHTML='';
+    services.forEach(s=>{
+      const status = statuses[s] || {ok:null,msg:'Not checked'};
+      const color = status.ok===true?'var(--green)':status.ok===false?'var(--red)':'var(--muted2)';
+      const label = status.ok===true?'Connected':status.ok===false?'Error':'Unknown';
+      grid.innerHTML+=`<div class="health-card">
+        <div class="health-service">${s}</div>
+        <div class="health-status">
+          <div class="health-dot" style="background:${color}"></div>
+          <span style="color:${color}">${label}</span>
+          <span style="font-size:11px;color:var(--muted);margin-left:4px">${status.msg||''}</span>
+        </div>
+      </div>`;
+    });
+    // Update sidebar dots
+    const links = document.querySelectorAll('.sidebar-link');
+    links.forEach(l=>{
+      const g = l.dataset.group;
+      if(!g) return;
+      const gKeys = KEYS.filter(k=>k.group.toLowerCase()===g);
+      const hasError = gKeys.some(k=>k.required && !document.getElementById('input-'+k.key)?.value);
+      l.className='sidebar-link'+(hasError?' err':'');
+    });
+  });
+}
+
+function downloadEnv(){
+  const lines = ['# Shyra AI — Environment Variables'];
+  const groupOrder = ['AI','WhatsApp','Team','Email','Google','Billing','Social','System'];
+  groupOrder.forEach(g=>{
+    lines.push('', `# ── ${g}`);
+    KEYS.filter(k=>k.group===g).forEach(k=>{
+      const el = document.getElementById('input-'+k.key);
+      const val = el?.value||'';
+      if(val) lines.push(`${k.key}=${val}`);
+      else lines.push(`# ${k.key}=${k.placeholder}`);
+    });
+  });
+  const blob = new Blob([lines.join('\n')],{type:'text/plain'});
+  const a = document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='.env';
+  a.click();
+  toast('.env downloaded','ok');
+}
+
+function updateEnvPreview(){
+  const preview = document.getElementById('env-preview');
+  let html='';
+  KEYS.forEach(k=>{
+    const el = document.getElementById('input-'+k.key);
+    const val = el?.value||'';
+    if(val){
+      const masked = k.type==='secret'&&val.length>8 ? val.slice(0,4)+'••••'+val.slice(-4) : val.slice(0,40);
+      html+=`<span class="env-key">${k.key}</span>=<span class="env-val">${masked}</span>\n`;
+    }
+  });
+  preview.innerHTML = html || '<span style="color:var(--muted2)">No keys entered yet</span>';
+}
+
+function updateStatus(){
+  const required = KEYS.filter(k=>k.required);
+  const missing = required.filter(k=>!document.getElementById('input-'+k.key)?.value);
+  const statusEl = document.getElementById('save-status');
+  if(missing.length===0){
+    statusEl.textContent='all required keys set';
+    statusEl.className='status-bar status-ok';
+  } else {
+    statusEl.textContent=`${missing.length} required keys missing`;
+    statusEl.className='status-bar status-err';
+  }
+}
+
+function scrollTo(id){
+  document.getElementById('group-'+id)?.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
+  event.currentTarget?.classList.add('active');
+}
+
+function logout(){
+  document.cookie='admin_token=;max-age=0;path=/';
+  location.reload();
+}
+
+function getCookie(name){
+  return document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith(name+'='))?.split('=')[1]||'';
+}
+
+function toast(msg, type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast '+type+' show';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// Load on mount
+loadKeys();
+</script>
+</body>
+</html>
